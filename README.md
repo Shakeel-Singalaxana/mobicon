@@ -1,6 +1,6 @@
-# ROJX System — Ultra-Low-Latency Virtual Gamepad & 900° Steering Hub
+# mobicon System — Ultra-Low-Latency Virtual Gamepad & 900° Steering Hub
 
-An open-source, sub-8ms low-latency mobile simulator controller and Windows virtual Xbox 360 gamepad receiver mimicking **rojx.io**.
+An open-source, sub-8ms low-latency mobile simulator controller and Windows virtual Xbox 360 gamepad receiver mimicking **mobicon.io**.
 
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android%20%7C%20Web-06B6D4)
 ![Framework](https://img.shields.io/badge/.NET%208-WPF%20%2B%20ASP.NET%20%2B%20ViGEmBus-10B981)
@@ -80,7 +80,7 @@ dotnet run
 
 ### Windows Firewall Rule (Run once in Admin PowerShell)
 ```powershell
-New-NetFirewallRule -DisplayName "ROJX Receiver (UDP 7777 + HTTP 8080)" -Direction Inbound -LocalPort 7777,8080 -Protocol UDP -Action Allow; New-NetFirewallRule -DisplayName "ROJX Web (TCP 8080)" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "mobicon Receiver (UDP 7777 + HTTP 8080)" -Direction Inbound -LocalPort 7777,8080 -Protocol UDP -Action Allow; New-NetFirewallRule -DisplayName "mobicon Web (TCP 8080)" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
 ```
 
 ---
@@ -92,7 +92,7 @@ New-NetFirewallRule -DisplayName "ROJX Receiver (UDP 7777 + HTTP 8080)" -Directi
 2. Point your phone camera at the **QR Code** displayed in the Receiver (WPF GUI or Terminal) or visit `http://<PC_IP>:8080`.
 3. Play immediately inside Chrome or Safari!
 
-### Method 2: Native Android App (io.rojx.client)
+### Method 2: Native Android App (io.mobicon.client)
 1. Open `android/` in Android Studio or build APK with `.\gradlew.bat assembleDebug`.
 2. Tap **Auto-Scan PC** (or enter PC IP and Port `7777`).
 3. Tap **Center Wheel** in landscape position and race!
