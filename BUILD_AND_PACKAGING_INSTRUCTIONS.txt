@@ -1,0 +1,193 @@
+================================================================================
+          ROJX SYSTEM: COMPLETE BUILD & PACKAGING INSTRUCTIONS GUIDE
+          Creating Standalone Executable (.EXE) & Android Package (.APK)
+================================================================================
+
+This document provides step-by-step instructions on how to build, package, and
+export production-ready release binaries for both the Windows Desktop Receiver
+(Visual Studio 2022) and the Android Mobile Application (Android Studio Hedgehog).
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. Windows Receiver: Building Standalone .EXE in Visual Studio 2022
+2. Windows Receiver: 1-Line Command-Line (.NET CLI) Export
+3. Android Client: Building Final .APK in Android Studio Hedgehog
+4. Android Client: 1-Line Command-Line (Gradle CLI) Export
+5. ViGEmBus Kernel Driver Installation & Firewall Setup
+6. Troubleshooting & Verification Steps
+
+================================================================================
+1. WINDOWS RECEIVER: BUILDING STANDALONE .EXE IN VISUAL STUDIO 2022
+================================================================================
+
+Project Path: d:\Projects\mobicon\WindowsReceiver\RojxWindowsReceiver.csproj
+
+Step 1: Open Project in Visual Studio 2022
+-----------------------------------------
+1. Launch Visual Studio 2022.
+2. Select "Open a project or solution".
+3. Navigate to `d:\Projects\mobicon\WindowsReceiver\` and select
+   `RojxWindowsReceiver.csproj`.
+4. Allow Visual Studio to restore NuGet packages (Nefarius.ViGEm.Client, etc.).
+
+Step 2: Configure Publish Settings
+----------------------------------
+1. In the top toolbar, change the Solution Configuration from "Debug" to "Release".
+2. In the "Solution Explorer" panel on the right, right-click on the
+   `RojxWindowsReceiver` project and select "Publish...".
+3. In the Publish dialog:
+   - Target: Select "Folder" -> Click "Next".
+   - Specific Target: Select "Folder" -> Click "Next".
+   - Folder Location: Accept default (e.g. `bin\Release\net8.0-windows\publish\`) or
+     choose a folder on your Desktop -> Click "Finish".
+
+Step 3: Configure Single-File & Self-Contained Options
+------------------------------------------------------
+1. In the Publish Profile summary screen, click the "Show all settings" link
+   (pencil icon next to Settings).
+2. Set the following options:
+   - Configuration: Release | Any CPU (or x64)
+   - Target Framework: net8.0-windows
+   - Deployment Mode: Choose one:
+     * "Framework-dependent" (Smaller file size ~5 MB; requires .NET 8 on target PC).
+     * "Self-contained" (Fully standalone ~60 MB; runs on ANY Windows PC without
+       requiring .NET runtime installed).
+   - Target Runtime: win-x64
+   - File Publish Options:
+     [X] Check "Produce single file" (Packages everything into a single .exe).
+     [X] Check "Enable ReadyToRun compilation" (Improves app startup time).
+3. Click "Save".
+
+Step 4: Publish & Locate Final .EXE
+-----------------------------------
+1. Click the purple "Publish" button in the top right.
+2. Once the build completes, click "Open folder" to access your final standalone
+   `RojxWindowsClient.exe`.
+
+================================================================================
+2. WINDOWS RECEIVER: 1-LINE COMMAND-LINE (.NET CLI) EXPORT
+================================================================================
+
+If you prefer building directly from PowerShell / Terminal without Visual Studio:
+
+Option A: Standalone Single .EXE (No .NET 8 Runtime required on other PCs)
+-------------------------------------------------------------------------
+Open PowerShell, navigate to the project directory, and run:
+
+  cd d:\Projects\mobicon\WindowsReceiver
+  dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./dist/StandaloneReceiver
+
+Your single `.exe` file will be generated in `WindowsReceiver/dist/StandaloneReceiver/`.
+
+Option B: Lightweight Single .EXE (Framework-Dependent, ~5MB)
+-------------------------------------------------------------
+  cd d:\Projects\mobicon\WindowsReceiver
+  dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o ./dist/LightweightReceiver
+
+================================================================================
+3. ANDROID CLIENT: BUILDING FINAL .APK IN ANDROID STUDIO HEDGEHOG
+================================================================================
+
+Project Path: d:\Projects\mobicon\android
+
+Step 1: Open Project in Android Studio Hedgehog (2023.1.1+)
+----------------------------------------------------------
+1. Launch Android Studio Hedgehog.
+2. In the Welcome screen (or File menu), click "Open".
+3. Browse to `d:\Projects\mobicon\android` and click "OK".
+4. Wait for Gradle to finish downloading dependencies and syncing (ensure Internet
+   connection is active).
+
+Step 2: Generate a Debug APK (Fastest, No Keystore Required)
+------------------------------------------------------------
+A Debug APK can be installed directly on any Android phone without needing a
+signing keystore.
+
+1. From the top menu bar, click:
+   Build -> Build Bundle(s) / APK(s) -> Build APK(s)
+2. Android Studio will run the Gradle build.
+3. When the build finishes, a popup notification will appear at the bottom-right:
+   "APK(s) generated successfully for 1 module"
+4. Click the blue "locate" link inside the notification.
+5. Windows Explorer will open containing:
+   `android\app\build\outputs\apk\debug\app-debug.apk`
+
+Step 3: Generate a Release Signed APK (Production & Distribution)
+-----------------------------------------------------------------
+If you want a signed Release APK for distribution:
+
+1. From the top menu bar, click:
+   Build -> Generate Signed Bundle / APK...
+2. In the dialog, choose "APK" -> click "Next".
+3. Under "Key store path":
+   - If you don't have a keystore, click "Create new...":
+     * Key store path: Choose a file location (e.g. `d:\my-release-key.jks`)
+     * Password: Enter a secure password
+     * Alias: e.g. `rojx_key`
+     * Validity: `25` years
+     * First and Last Name: Enter your name or organisation
+     * Click "OK".
+4. Check "Remember passwords" -> click "Next".
+5. In the next screen:
+   - Build Variants: Select "release".
+   - Signature Versions: Check both [X] V1 (Jar Signature) and [X] V2 (Full APK Signature).
+6. Click "Finish".
+7. Once completed, your release APK will be in:
+   `android\app\release\app-release.apk`
+
+================================================================================
+4. ANDROID CLIENT: 1-LINE COMMAND-LINE (GRADLE CLI) EXPORT
+================================================================================
+
+You can also build the APK directly using the Gradle wrapper from Terminal:
+
+On Windows (Command Prompt / PowerShell):
+----------------------------------------
+  cd d:\Projects\mobicon\android
+  .\gradlew.bat assembleDebug
+
+The output APK will be generated at:
+  `android\app\build\outputs\apk\debug\app-debug.apk`
+
+To install directly onto a connected phone with USB Debugging enabled:
+  .\gradlew.bat installDebug
+
+================================================================================
+5. VIGEMBUS KERNEL DRIVER INSTALLATION & FIREWALL SETUP
+================================================================================
+
+The Windows Receiver requires the ViGEmBus driver to inject virtual Xbox 360
+controller inputs into games.
+
+1. Download ViGEmBus:
+   https://github.com/nefarius/ViGEmBus/releases
+2. Run `ViGEmBus_1.21.442_x64_x86_arm64.exe` and follow the setup wizard.
+3. Windows Firewall Configuration:
+   Run the following command once in PowerShell (Run as Administrator):
+
+   New-NetFirewallRule -DisplayName "ROJX Receiver (UDP 7777 + HTTP 8080)" -Direction Inbound -LocalPort 7777,8080 -Protocol UDP -Action Allow; New-NetFirewallRule -DisplayName "ROJX Web (TCP 8080)" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+
+4. Verify Wi-Fi Network Profile:
+   Ensure your PC's Wi-Fi network is set to "Private network" so local devices
+   can communicate. (Windows Settings -> Network & internet -> Wi-Fi -> Properties -> Private network).
+
+================================================================================
+6. TROUBLESHOOTING & VERIFICATION STEPS
+================================================================================
+
+Q: "Why does the Windows Receiver show 'Waiting for Phone...'?"
+A: - Make sure both the phone and PC are on the same Wi-Fi subnet.
+   - For Mobile Web: scan the QR code displayed in the Receiver with your phone camera or visit http://<PC_IP>:8080.
+   - For Android Native App: Tap 'Auto-Scan' on phone or enter IP with Port 7777.
+   - You can test controls immediately on PC without a phone by clicking the
+     "⌨️ Test (WASD)" button on the top bar!
+
+Q: "How do I verify the Virtual Controller is working in Windows?"
+A: 1. Press Win + R, type `joy.cpl`, and hit Enter.
+   2. You should see "Controller (XBOX 360 For Windows)" listed with status "OK".
+   3. Click "Properties" to view live axis and button responses in real time!
+
+================================================================================
+                          END OF INSTRUCTIONS GUIDE
+================================================================================
